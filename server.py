@@ -10,7 +10,7 @@ import argparse
 def main(argv):
     args = parseArguments(argv)
     try:
-        C,D = grs.generalizedReedSolomon(args.o, args.n, args.k)
+        C,D = grs.generalizedReedSolomon(args.o, args.n, args.k, args.primGF)
         print "Generalized Reed-Solomon code generated successfully!"
         print "Minimun distance:", C.minimum_distance()
         print "Max number of error", D.decoding_radius()

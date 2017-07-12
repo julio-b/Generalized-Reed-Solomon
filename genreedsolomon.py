@@ -1,6 +1,8 @@
 from sage.all import *
 
-def generalizedReedSolomon(o,n,k):
+def generalizedReedSolomon(o, n, k, q):
+    if( q and not is_prime(o) ):
+        o = next_prime(o)
     F = GF(o, "a")
     #####TODO set column_multipliers
     #TODO gen with num of bits
