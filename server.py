@@ -21,6 +21,7 @@ def main(argv):
 
     HOST = "localhost"
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     print ""
     try:
         s.bind((HOST, args.PORT))
