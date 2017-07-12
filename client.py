@@ -15,11 +15,14 @@ def main():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         s.connect((HOST, args.PORT))
-        recv = s.recv(999999)   ##TODO recv based on pickle msg length
+        recv = ""
+        while 1:
+            r = s.recv(10000)
+            recv+=r
+            if not r: break
         data = pickle.loads(recv)
         server_args = data[0]
         C,D = grs.generalizedReedSolomon(server_args.o, server_args.n, server_args.k, server_args.primGF)
-        print data[0],'\n',data[1]
         for i in range(len(data[1])):
             try:
                 di = D.decode_to_message(data[1][i])
