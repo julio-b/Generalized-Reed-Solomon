@@ -8,23 +8,32 @@ import genreedsolomon as grs
 import argparse
 
 def main(argv):
-    HOST = "localhost"
-
     args = parseArguments(argv)
-    #TODO continue only of args generate grs
+    try:
+        C,D = grs.generalizedReedSolomon(args.o, args.n, args.k)
+        print "Generalized Reed-Solomon code generated successfully!"
+        print "Minimun distance:", C.minimum_distance()
+        print "Max number of error", D.decoding_radius()
+    except ValueError as ve:
+        print "Error:", ve
+        print "GRS code generation failed. Check your arguments. Use -h for help"
+        return
+
+    HOST = "localhost"
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    print ""
     try:
         s.bind((HOST, args.PORT))
         s.listen(5)
         print "Server started"
         while 1:
             conn, addr = s.accept()
-            thread.start_new_thread(send2Client, (conn, addr, args))
+            thread.start_new_thread(send2Client, (conn, addr, args, C))
     except KeyboardInterrupt:
         print "Terminating server"
     except socket.error as se:
         print se
-        print "Check that your specified port", args.PORT, "is available"
+        print "Check that your specified port", args.PORT, "is available. Use -P to change it"
     #TODO sage exceptions
     except Exception as e:
         print e
@@ -33,10 +42,9 @@ def main(argv):
         print "Socket closed"
         s.close()
 
-def send2Client(client, address, args):
+def send2Client(client, address, args, C):
     print "New client @", address
     try:
-        C,D = grs.generalizedReedSolomon(args.o, args.n, args.k)
         msg = [C.random_element() for i in range(args.msgnum)]
         err = grs.addRandomErrors(msg, args.error, C)
         for i in range(len(msg)):
