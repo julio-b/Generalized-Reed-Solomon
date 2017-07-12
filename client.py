@@ -6,9 +6,10 @@ import genreedsolomon as grs
 import argparse
 
 def main():
-    #TODO decode to message or decode to code arg
+    #TODO improve output. --verbose
     parser = argparse.ArgumentParser(description="GRS client")
     parser.add_argument("-P", "--port", default=666,type=int, dest="PORT", help="Socket port (default: 666)")
+    parser.add_argument("-c", "--to-code", action='store_true', help="Decode to code instead of message")
     args = parser.parse_args()
 
     HOST = "localhost"
@@ -25,8 +26,11 @@ def main():
         C,D = grs.generalizedReedSolomon(server_args.o, server_args.n, server_args.k, server_args.primGF)
         for i in range(len(data[1])):
             try:
-                di = D.decode_to_message(data[1][i])
-                print "#", i, data[1][i], "decoded to", di
+                if(args.to_code):
+                    di = D.decode_to_code(data[1][i])
+                else:
+                    di = D.decode_to_message(data[1][i])
+                print "#", i, data[1][i], "decoded to", "code" if args.to_code else "msg", di
             except (sage.coding.decoder.DecodingError, ValueError) as e:
                 print "#", i, data[1][i], "decode failed"
                 pass
