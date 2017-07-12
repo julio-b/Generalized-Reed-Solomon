@@ -1,12 +1,15 @@
 from sage.all import *
 
-def generalizedReedSolomon(o, n, k, q):
+def generalizedReedSolomon(o, n, k, q, clms):
     if( q and not is_prime(o) ):
         o = next_prime(o)
     F = GF(o, "a")
-    #####TODO set column_multipliers
+    if(clms is None):
+        columns = [1 for i in range(n)]
+    else:
+        columns = [F.list()[i] for i in clms]
     #TODO gen with num of bits
-    C = codes.GeneralizedReedSolomonCode(F.list()[:n],k, [1 for i in range(n)])
+    C = codes.GeneralizedReedSolomonCode(F.list()[:n], k, columns)
     if(C.dual_code() is not None):
         C = C.dual_code()
     D = codes.decoders.GRSGaoDecoder(C)

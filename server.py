@@ -9,9 +9,10 @@ import argparse
 
 def main(argv):
     args = parseArguments(argv)
+    print args
     try:
-        C,D = grs.generalizedReedSolomon(args.o, args.n, args.k, args.primGF)
-        print "Generalized Reed-Solomon code generated successfully!"
+        C,D = grs.generalizedReedSolomon(args.o, args.n, args.k, args.primGF, args.column_multipliers)
+        print "Generalized" if C.is_generalized() else "", "Reed-Solomon code generated successfully!"
         print "Minimun distance:", C.minimum_distance()
         print "Max number of error", D.decoding_radius()
         if(args.listGF):
@@ -68,10 +69,11 @@ def parseArguments(args):
             epilog="Examples: server.py -qo59 -n40 -k12 -p0.23")
     #####TODO: accept order like -o 2**4
     parser.add_argument("-o", "--order", required=True, type=int, dest="o", help="GRS finite field's order")
-    parser.add_argument("-q", "--primary", action='store_true', dest="primGF", help="Set GRS finite field's order to next primary")
+    parser.add_argument("-q", "--primary", action="store_true", dest="primGF", help="Set GRS finite field's order to next primary")
     parser.add_argument("-n", required=True, type=int, dest="n", help="GRS evaluation points")
     parser.add_argument("-k", required=True, type=int, dest="k", help="GRS dimension")
     parser.add_argument("-m", "--messages", default=20, type=int, dest="msgnum", help="Number of messages to send")
+    parser.add_argument("--column-multipliers", "--clmns", nargs="+", metavar=("I1","I2"), type=int, help="Specify GRS column multipliers, a list of indexes over GF (see --list-gf, ex:  --clmns 3 4 1, default: all 1)")
     parser.add_argument("--list-gf", action="store_true", dest="listGF", help="List finite field and exit")
     error_group = parser.add_mutually_exclusive_group()
     error_group.add_argument("-e", default=0, type=int, dest="error", help="Number of errors added to each message (default: 0)")

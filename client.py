@@ -5,13 +5,10 @@ import pickle
 import genreedsolomon as grs
 import argparse
 
-def main():
+def main(argv):
     #TODO improve output. --verbose
-    parser = argparse.ArgumentParser(description="GRS client")
-    parser.add_argument("-P", "--port", default=666,type=int, dest="PORT", help="Socket port (default: 666)")
-    parser.add_argument("-c", "--to-code", action='store_true', help="Decode to code instead of message")
-    args = parser.parse_args()
-
+    args = parseArguments(argv)
+    print args
     HOST = "localhost"
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
@@ -23,7 +20,7 @@ def main():
             if not r: break
         data = pickle.loads(recv)
         server_args = data[0]
-        C,D = grs.generalizedReedSolomon(server_args.o, server_args.n, server_args.k, server_args.primGF)
+        C,D = grs.generalizedReedSolomon(server_args.o, server_args.n, server_args.k, server_args.primGF, server_args.column_multipliers)
         for i in range(len(data[1])):
             try:
                 if(args.to_code):
@@ -44,5 +41,11 @@ def main():
     finally:
         s.close()
 
+def parseArguments(args):
+    parser = argparse.ArgumentParser(description="GRS client")
+    parser.add_argument("-P", "--port", default=666,type=int, dest="PORT", help="Socket port (default: 666)")
+    parser.add_argument("-c", "--to-code", action="store_true", help="Decode to code instead of message")
+    return parser.parse_args(args)
+
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
