@@ -15,7 +15,6 @@ def addRandomErrors(elements, err, C):
         Chan = channels.QarySymmetricChannel(C.ambient_space(), err)
     else:
         Chan = channels.StaticErrorRateChannel(C.ambient_space(), err)
-    if(isinstance(elements,list)):
-        return [ Chan.transmit_unsafe(e) for e in elements ]
-    else:
-        return [Chan.transmit_unsafe(elements)]
+    if( not isinstance(elements, list)):
+        elements = [elements]
+    return [ Chan.transmit_unsafe(e) for e in elements ]
