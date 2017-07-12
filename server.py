@@ -14,6 +14,12 @@ def main(argv):
         print "Generalized Reed-Solomon code generated successfully!"
         print "Minimun distance:", C.minimum_distance()
         print "Max number of error", D.decoding_radius()
+        if(args.listGF):
+            print "GRS base field:", C.base_field()
+            print "\tIndex\tElement"
+            for n, e in enumerate( C.base_field() ):
+                print "\t", n, "\t", e
+            return
     except ValueError as ve:
         print "Error:", ve
         print "GRS code generation failed. Check your arguments. Use -h for help"
@@ -66,6 +72,7 @@ def parseArguments(args):
     parser.add_argument("-n", required=True, type=int, dest="n", help="GRS evaluation points")
     parser.add_argument("-k", required=True, type=int, dest="k", help="GRS dimension")
     parser.add_argument("-m", "--messages", default=20, type=int, dest="msgnum", help="Number of messages to send")
+    parser.add_argument("--list-gf", action="store_true", dest="listGF", help="List finite field and exit")
     error_group = parser.add_mutually_exclusive_group()
     error_group.add_argument("-e", default=0, type=int, dest="error", help="Number of errors added to each message (default: 0)")
     error_group.add_argument("-E", type=int, nargs=2, metavar=("E0", "E1"), dest="error", help="Random number (between E0 and E1) of errors added to each message")
