@@ -21,6 +21,12 @@ def main(argv):
             for n, e in enumerate( C.base_field() ):
                 print "\t", n, "\t", e
             return
+        if(args.infile != None):
+            print "Reading message from", args.infile.name, ", CTRL-D CTRL-D when you're done" if args.infile==sys.stdin else ""
+            UserInput = grs.encodeFile(args.infile, C)
+        else:
+            UserInput = []
+        del args.infile
     except ValueError as ve:
         print "Error:", ve
         print "GRS code generation failed. Check your arguments. Use -h for help"
@@ -36,7 +42,7 @@ def main(argv):
         print "Server started"
         while 1:
             conn, addr = s.accept()
-            thread.start_new_thread(send2Client, (conn, addr, args, C))
+            thread.start_new_thread(send2Client, (conn, addr, args, C, UserInput))
     except KeyboardInterrupt:
         print "Terminating server"
     except socket.error as se:
@@ -50,10 +56,11 @@ def main(argv):
         print "Socket closed"
         s.close()
 
-def send2Client(client, address, args, C):
+def send2Client(client, address, args, C, nonrandmsg):
     print "New client @", address
     try:
         msg = [C.random_element() for i in range(args.msgnum)]
+        msg += nonrandmsg
         err = grs.addRandomErrors(msg, args.error, C)
         for i in range(len(msg)):
             print "#",i,msg[i], err[i]
@@ -80,7 +87,7 @@ def parseArguments(args):
     error_group.add_argument("-E", type=int, nargs=2, metavar=("E0", "E1"), dest="error", help="Random number (between E0 and E1) of errors added to each message")
     error_group.add_argument("-p", type=float, choices=[Range(0.0, 1.0)], metavar="ERROR", dest="error", help="Error probabillity")
     parser.add_argument("-P", "--port", default=666,type=int, dest="PORT", help="Socket port (default: 666)")
-    #TODO: message input from file
+    parser.add_argument("infile", nargs="?", type=argparse.FileType("r"), help="Encode and send this file also (use - for stdin, default: None)")
     #TODO: --verbose
     return parser.parse_args(args)
 

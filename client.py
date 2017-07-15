@@ -27,7 +27,11 @@ def main(argv):
                     di = D.decode_to_code(data[1][i])
                 else:
                     di = D.decode_to_message(data[1][i])
-                print "#", i, data[1][i], "decoded to", "code" if args.to_code else "msg", di
+                if(args.to_string):
+                    si= grs.decodeToAscii(data[1][i], C, D)
+                else:
+                    si=""
+                print "#", i, data[1][i], "decoded to", "code" if args.to_code else "msg", di, "and to string" if args.to_string else "", si
             except (sage.coding.decoder.DecodingError, ValueError) as e:
                 print "#", i, data[1][i], "decode failed"
                 pass
@@ -45,6 +49,7 @@ def parseArguments(args):
     parser = argparse.ArgumentParser(description="GRS client")
     parser.add_argument("-P", "--port", default=666,type=int, dest="PORT", help="Socket port (default: 666)")
     parser.add_argument("-c", "--to-code", action="store_true", help="Decode to code instead of message")
+    parser.add_argument("-s", "--to-string", action="store_true", help="Decode also to ascii string")
     return parser.parse_args(args)
 
 if __name__ == "__main__":
