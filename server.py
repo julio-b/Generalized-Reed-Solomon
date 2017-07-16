@@ -61,9 +61,10 @@ def send2Client(client, address, args, C, nonrandmsg):
     try:
         msg = [C.random_element() for i in range(args.msgnum)]
         msg += nonrandmsg
-        err = grs.addRandomErrors(msg, args.error, C)
+        print "Sending", len(msg), "messages to", address
         for i in range(len(msg)):
-            print "#",i,msg[i], err[i]
+            print "#%d {%s}" % (i, msg[i])
+        err = grs.addRandomErrors(msg, args.error, C)
         client.send( pickle.dumps((args, err)))
     #TODO exceptions
     except Exception as e:
@@ -74,7 +75,6 @@ def send2Client(client, address, args, C, nonrandmsg):
 def parseArguments(args):
     parser = argparse.ArgumentParser(description="Generalized Reed-Solomon",
             epilog="Examples: server.py -qo59 -n40 -k12 -p0.23")
-    #####TODO: accept order like -o 2**4
     parser.add_argument("-o", "--order", required=True, type=int, dest="o", help="GRS finite field's order")
     parser.add_argument("-q", "--primary", action="store_true", dest="primGF", help="Set GRS finite field's order to next primary")
     parser.add_argument("-n", required=True, type=int, dest="n", help="GRS evaluation points")
@@ -88,7 +88,6 @@ def parseArguments(args):
     error_group.add_argument("-p", type=float, choices=[Range(0.0, 1.0)], metavar="ERROR", dest="error", help="Error probabillity")
     parser.add_argument("-P", "--port", default=666,type=int, dest="PORT", help="Socket port (default: 666)")
     parser.add_argument("infile", nargs="?", type=argparse.FileType("r"), help="Encode and send this file also (use - for stdin, default: None)")
-    #TODO: --verbose
     return parser.parse_args(args)
 
 #copied from https://stackoverflow.com/a/12117089

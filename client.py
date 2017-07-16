@@ -6,7 +6,7 @@ import genreedsolomon as grs
 import argparse
 
 def main(argv):
-    #TODO improve output. --verbose
+    #TODO color msg errors, --no-color
     args = parseArguments(argv)
     print args
     HOST = "localhost"
@@ -21,6 +21,8 @@ def main(argv):
         data = pickle.loads(recv)
         server_args = data[0]
         C,D = grs.generalizedReedSolomon(server_args.o, server_args.n, server_args.k, server_args.primGF, server_args.column_multipliers)
+        strmsg=""
+        print "Received", len(data[1]), "messages from server!\n"
         for i in range(len(data[1])):
             try:
                 if(args.to_code):
@@ -28,16 +30,19 @@ def main(argv):
                 else:
                     di = D.decode_to_message(data[1][i])
                 if(args.to_string):
-                    si= grs.decodeToAscii(data[1][i], C, D)
-                else:
-                    si=""
-                print "#", i, data[1][i], "decoded to", "code" if args.to_code else "msg", di, "and to string" if args.to_string else "", si
+                    strmsg += grs.decodeToAscii(data[1][i], C, D)
+                print "#%d {%s --decode-to-%s--> %s}" % (i, data[1][i], "code" if args.to_code else "msg", di)
             except (sage.coding.decoder.DecodingError, ValueError) as e:
-                print "#", i, data[1][i], "decode failed"
+                print "#%d {%s DECODE FAILED!}" % (i, data[1][i])
                 pass
+        if(args.to_string):
+            print "Trying to decode messages to ascii text:"
+            print strmsg
     except socket.error as se:
         print se
         print "Check that your server is running or change port (-P PORT)"
+    except EOFError:
+        print "Received empty response from server"
     #TODO exceptions
     except Exception as e:
         print e
