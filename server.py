@@ -11,22 +11,13 @@ def main(argv):
     args = parseArguments(argv)
     try:
         C,D = grs.generalizedReedSolomon(args.o, args.n, args.k, args.primGF, args.column_multipliers)
-        print "Generalized" if C.is_generalized() else "", "Reed-Solomon code generated successfully!"
-        print "Minimun distance:", C.minimum_distance()
-        print "Max number of error", D.decoding_radius()
+        printInfos(C, D)
         if(args.listGF):
-            print "GRS base field:", C.base_field()
-            print "\tIndex\tElement"
-            for n, e in enumerate( C.base_field() ):
-                print "\t", n, "\t", e
+            listGF(C)
             return
         UserInput = []
         if(args.infile != None):
-            print "Reading message from", args.infile.name, ", CTRL-D CTRL-D when you're done" if args.infile==sys.stdin else "", ":"
-            UserInput = grs.encodeFile(args.infile, C)
-            if(args.infile != sys.stdin):
-                args.infile.seek(0)
-                print args.infile.read()
+            UserInput = readUserInput(args, C)
         del args.infile
     except KeyboardInterrupt:
         print "Terminating"
@@ -79,6 +70,25 @@ def send2Client(client, address, args, C, nonrandmsg):
         print e
     finally:
         client.close()
+
+def printInfos(C, D):
+    print "Generalized" if C.is_generalized() else "", "Reed-Solomon code generated successfully!"
+    print "Minimun distance:", C.minimum_distance()
+    print "Max number of error", D.decoding_radius()
+
+def listGF(C):
+    print "GRS base field:", C.base_field()
+    print "\tIndex\tElement"
+    for n, e in enumerate( C.base_field() ):
+        print "\t", n, "\t", e
+
+def readUserInput(args, C):
+    print "Reading message from", args.infile.name, ", CTRL-D CTRL-D when you're done" if args.infile==sys.stdin else "", ":"
+    UserInput = grs.encodeFile(args.infile, C)
+    if(args.infile != sys.stdin):
+        args.infile.seek(0)
+        print args.infile.read()
+    return UserInput
 
 def parseArguments(args):
     parser = argparse.ArgumentParser(description="Generalized Reed-Solomon",

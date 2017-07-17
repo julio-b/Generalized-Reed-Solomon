@@ -11,39 +11,30 @@ def main(argv):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         s.connect((HOST, args.PORT))
-        recv = ""
-        while 1:
-            r = s.recv(10000)
-            recv+=r
-            if not r: break
-        data = pickle.loads(recv)
+        data = pickle.loads(recvAll(s))
         server_args = data[0]
         C,D = grs.generalizedReedSolomon(server_args.o, server_args.n, server_args.k, server_args.primGF, server_args.column_multipliers)
-        strmsg=""
+        msg_ascii=""
         print "Received", len(data[1]), "messages from server!\n"
         for i in range(len(data[1])):
             try:
                 if(args.no_color):
-                    strcode = str(data[1][i])
-                else: #highlight errors
-                    strcode = "("
-                    code = D.decode_to_code(data[1][i])
-                    for c in range(len(data[1][i])):
-                        if(code[c]!=data[1][i][c]):
-                            strcode += "\033[6;30;41m" + str(data[1][i][c]) + "\033[0m"
-                        else:
-                            strcode += str(data[1][i][c])
-                        strcode += ", "
-                    strcode += "\b\b)"  #*, ) --> *)
+                    code_str = str(data[1][i])
+                else:
+                    code_str = highlightErrors(data[1][i], D)
                 if(args.to_string):
-                    strmsg += grs.decodeToAscii(data[1][i], C, D)
-                print "#%d {%s --decode-to-%s--> %s}" % (i, strcode, "code" if args.to_code else "msg", D.decode_to_code(data[1][i]) if args.to_code else D.decode_to_message(data[1][i]))
+                    msg_ascii += grs.decodeToAscii(data[1][i], C, D)
+                print "#%d {%s --decode-to-%s--> %s}" % (
+                        i,
+                        code_str,
+                        "code" if args.to_code else "msg",
+                        D.decode_to_code(data[1][i]) if args.to_code else D.decode_to_message(data[1][i]))
             except (sage.coding.decoder.DecodingError, ValueError) as e:
                 print "#%d {%s DECODE FAILED!}" % (i, data[1][i])
                 pass
         if(args.to_string):
             print "Trying to decode messages to ascii text:"
-            print strmsg
+            print msg_ascii
     except socket.error as se:
         print se
         print "Check that your server is running or change port (-P PORT)"
@@ -54,6 +45,26 @@ def main(argv):
         raise
     finally:
         s.close()
+
+def recvAll(s):
+    recv = ""
+    while 1:
+        r = s.recv(10000)
+        recv += r
+        if not r: break
+    return recv
+
+def highlightErrors(errcode, D):
+    code_str = "("
+    code = D.decode_to_code(errcode)
+    for c in range(len(errcode)):
+        if(code[c]!=errcode[c]):
+            code_str += "\033[6;30;41m" + str(errcode[c]) + "\033[0m"
+        else:
+            code_str += str(errcode[c])
+        code_str += ", "
+    code_str += "\b\b)"  #*, ) --> *)
+    return code_str
 
 def parseArguments(args):
     parser = argparse.ArgumentParser(description="GRS client")
