@@ -9,7 +9,6 @@ import argparse
 
 def main(argv):
     args = parseArguments(argv)
-    print args
     try:
         C,D = grs.generalizedReedSolomon(args.o, args.n, args.k, args.primGF, args.column_multipliers)
         print "Generalized" if C.is_generalized() else "", "Reed-Solomon code generated successfully!"
@@ -21,15 +20,23 @@ def main(argv):
             for n, e in enumerate( C.base_field() ):
                 print "\t", n, "\t", e
             return
+        UserInput = []
         if(args.infile != None):
-            print "Reading message from", args.infile.name, ", CTRL-D CTRL-D when you're done" if args.infile==sys.stdin else ""
+            print "Reading message from", args.infile.name, ", CTRL-D CTRL-D when you're done" if args.infile==sys.stdin else "", ":"
             UserInput = grs.encodeFile(args.infile, C)
-        else:
-            UserInput = []
+            if(args.infile != sys.stdin):
+                args.infile.seek(0)
+                print args.infile.read()
         del args.infile
-    except ValueError as ve:
-        print "Error:", ve
+    except KeyboardInterrupt:
+        print "Terminating"
+        return
+    except (ValueError, IndexError) as vie:
+        print "Error:", vie
         print "GRS code generation failed. Check your arguments. Use -h for help"
+        return
+    except Exception as e:
+        print e
         return
 
     HOST = "localhost"
@@ -48,7 +55,6 @@ def main(argv):
     except socket.error as se:
         print se
         print "Check that your specified port", args.PORT, "is available. Use -P to change it"
-    #TODO sage exceptions
     except Exception as e:
         print e
         raise
@@ -66,7 +72,9 @@ def send2Client(client, address, args, C, nonrandmsg):
             print "#%d {%s}" % (i, msg[i])
         err = grs.addRandomErrors(msg, args.error, C)
         client.send( pickle.dumps((args, err)))
-    #TODO exceptions
+    except ValueError as ve:
+        print "ERROR:", ve, ", your error argument is:", args.error
+        return
     except Exception as e:
         print e
     finally:

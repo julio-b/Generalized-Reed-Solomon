@@ -7,7 +7,6 @@ import argparse
 
 def main(argv):
     args = parseArguments(argv)
-    print args
     HOST = "localhost"
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
@@ -50,7 +49,6 @@ def main(argv):
         print "Check that your server is running or change port (-P PORT)"
     except EOFError:
         print "Received empty response from server"
-    #TODO exceptions
     except Exception as e:
         print e
         raise
