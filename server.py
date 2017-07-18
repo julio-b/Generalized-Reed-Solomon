@@ -79,6 +79,8 @@ def send_to_client(client, address, args, C, non_rand_msg):
 
 def print_infos(C, D):
     print "Generalized" if C.is_generalized() else "", "Reed-Solomon code generated successfully!"
+    print "Code length", C.length()
+    print "Message length", C.dimension()
     print "Minimun distance:", C.minimum_distance()
     print "Max number of error", D.decoding_radius()
 
@@ -97,21 +99,21 @@ def read_user_input(args, C):
     return user_input
 
 def parse_arguments(args):
-    parser = argparse.ArgumentParser(description="Generalized Reed-Solomon",
-            epilog="Examples: server.py -qo59 -n40 -k12 -p0.23")
-    parser.add_argument("-o", "--order", required=True, type=int, dest="o", help="GRS finite field's order")
-    parser.add_argument("-q", "--primary", action="store_true", dest="prime_GF", help="Set GRS finite field's order to next primary")
-    parser.add_argument("-n", required=True, type=int, dest="n", help="GRS evaluation points")
-    parser.add_argument("-k", required=True, type=int, dest="k", help="GRS dimension")
+    parser = argparse.ArgumentParser(description="Generalized Reed-Solomon, Server Side",
+            epilog="Example: ./server.py -Dqo15 -n13 -k8 -m24 -E 2 6")
+    parser.add_argument("-o", "--order", required=True, type=int, dest="o", help="GRS Galois field order")
+    parser.add_argument("-q", "--primary", action="store_true", dest="prime_GF", help="Set GRS Galois field order to next primary")
+    parser.add_argument("-n", required=True, type=int, dest="n", help="GRS evaluation points (length of the code, n<=o)")
+    parser.add_argument("-k", required=True, type=int, dest="k", help="GRS dimension (length of the message, k<n)")
+    parser.add_argument("-D", "--dual-code", action="store_true", help="Use dual code (message length will be n-k)")
+    parser.add_argument("--clmns", "--column-multipliers", dest="column_multipliers", nargs="+", metavar=("I1","I2"), type=int, help="Specify GRS column multipliers, a list of indexes over GF (see --list-gf, ex: -o4 -n4 -k3 --clmns 2 3 1 2, default: all 1)")
+    parser.add_argument("--list-gf", action="store_true", dest="list_GF", help="List Galois field and exit")
     parser.add_argument("-m", "--messages", default=20, type=int, dest="msgnum", help="Number of messages to send")
-    parser.add_argument("-D", "--dual-code", action="store_true", help="Use dual code")
-    parser.add_argument("--column-multipliers", "--clmns", nargs="+", metavar=("I1","I2"), type=int, help="Specify GRS column multipliers, a list of indexes over GF (see --list-gf, ex:  --clmns 3 4 1, default: all 1)")
-    parser.add_argument("--list-gf", action="store_true", dest="list_GF", help="List finite field and exit")
     error_group = parser.add_mutually_exclusive_group()
-    error_group.add_argument("-e", default=0, type=int, dest="error", help="Number of errors added to each message (default: 0)")
-    error_group.add_argument("-E", type=int, nargs=2, metavar=("E0", "E1"), dest="error", help="Random number (between E0 and E1) of errors added to each message")
-    error_group.add_argument("-p", type=float, choices=[Range(0.0, 1.0)], metavar="ERROR", dest="error", help="Error probabillity")
-    parser.add_argument("-P", "--port", default=666,type=int, dest="PORT", help="Socket port (default: 666)")
+    error_group.add_argument("-e", default=0, type=int, dest="error", help="The number of errors created in each encoded message (default: 0, only one of the -e,-E,-p can be used)")
+    error_group.add_argument("-E", type=int, nargs=2, metavar=("E0", "E1"), dest="error", help="Random number of errors (between E0 and E1) will be created in each encoded message (ex: -E 0 3)")
+    error_group.add_argument("-p", type=float, choices=[Range(0.0, 1.0)], metavar="ERROR", dest="error", help="Error probabillity (float in [0,1), ex: -p0.2)")
+    parser.add_argument("-P", "--port", default=666, type=int, dest="PORT", help="Socket port (default: 666)")
     parser.add_argument("infile", nargs="?", type=argparse.FileType("r"), help="Encode and send this file also (use - for stdin, default: None)")
     return parser.parse_args(args)
 

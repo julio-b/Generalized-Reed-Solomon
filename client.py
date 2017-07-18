@@ -73,8 +73,8 @@ def highlight_errors(errcode, D):
     return code_str
 
 def parse_arguments(args):
-    parser = argparse.ArgumentParser(description="GRS client")
-    parser.add_argument("-P", "--port", default=666,type=int, dest="PORT", help="Socket port (default: 666)")
+    parser = argparse.ArgumentParser(description="Generalized Reed-Solomon, Client Side")
+    parser.add_argument("-P", "--port", default=666, type=int, dest="PORT", help="Socket port (default: 666)")
     parser.add_argument("-c", "--to-code", action="store_true", help="Decode to code instead of message")
     parser.add_argument("-s", "--to-string", action="store_true", help="Decode also to ascii string")
     parser.add_argument("--no-color", action="store_true", help="Do not highlight errors in code")
