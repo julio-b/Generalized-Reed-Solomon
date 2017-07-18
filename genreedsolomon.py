@@ -1,6 +1,6 @@
 from sage.all import *
 
-def generalizedReedSolomon(o, n, k, q, clms):
+def generalizedReedSolomon(o, n, k, q, dual, clms):
     if( q and not is_prime(o) ):
         o = next_prime(o)
     F = GF(o, "w")
@@ -13,7 +13,7 @@ def generalizedReedSolomon(o, n, k, q, clms):
             C = codes.GeneralizedReedSolomonCode(F.list()[:n], k, columns)
     except IndexError as ie:
         raise IndexError("Column multipliers indexes are out of range")
-    if(C.dual_code() is not None):
+    if(dual and C.dual_code() is not None):
         C = C.dual_code()
     D = codes.decoders.GRSGaoDecoder(C)
     return C,D

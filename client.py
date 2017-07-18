@@ -13,7 +13,7 @@ def main(argv):
         s.connect((HOST, args.PORT))
         data = pickle.loads(recvAll(s))
         server_args = data[0]
-        C,D = grs.generalizedReedSolomon(server_args.o, server_args.n, server_args.k, server_args.primGF, server_args.column_multipliers)
+        C,D = grs.generalizedReedSolomon(server_args.o, server_args.n, server_args.k, server_args.primGF, server_args.dual_code, server_args.column_multipliers)
         msg_ascii=""
         print "Received", len(data[1]), "messages from server!\n"
         for i in range(len(data[1])):

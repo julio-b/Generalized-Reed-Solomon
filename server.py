@@ -10,7 +10,7 @@ import argparse
 def main(argv):
     args = parseArguments(argv)
     try:
-        C,D = grs.generalizedReedSolomon(args.o, args.n, args.k, args.primGF, args.column_multipliers)
+        C,D = grs.generalizedReedSolomon(args.o, args.n, args.k, args.primGF, args.dual_code, args.column_multipliers)
         printInfos(C, D)
         if(args.listGF):
             listGF(C)
@@ -98,6 +98,7 @@ def parseArguments(args):
     parser.add_argument("-n", required=True, type=int, dest="n", help="GRS evaluation points")
     parser.add_argument("-k", required=True, type=int, dest="k", help="GRS dimension")
     parser.add_argument("-m", "--messages", default=20, type=int, dest="msgnum", help="Number of messages to send")
+    parser.add_argument("-D", "--dual-code", action="store_true", help="Use dual code")
     parser.add_argument("--column-multipliers", "--clmns", nargs="+", metavar=("I1","I2"), type=int, help="Specify GRS column multipliers, a list of indexes over GF (see --list-gf, ex:  --clmns 3 4 1, default: all 1)")
     parser.add_argument("--list-gf", action="store_true", dest="listGF", help="List finite field and exit")
     error_group = parser.add_mutually_exclusive_group()
