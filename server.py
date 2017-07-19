@@ -64,9 +64,10 @@ def send_to_client(client, address, args, C, non_rand_msg):
     try:
         msg = [C.random_element() for i in range(args.msgnum)]
         msg += non_rand_msg
-        print "Sending", len(msg), "messages to", address
+        print "Sending", len(msg), "encoded messages to", address
         for i in range(len(msg)):
-            print "#%d {%s}" % (i, msg[i])
+            print "#%d {\n %s --encode->\n %s\n}" % (i, C.unencode(msg[i]), msg[i])
+        print ""
         err = grs.add_random_errors(msg, args.error, C)
         client.send(pickle.dumps((args, err)))
     except ValueError as ve:
@@ -79,10 +80,10 @@ def send_to_client(client, address, args, C, non_rand_msg):
 
 def print_infos(C, D):
     print "Generalized" if C.is_generalized() else "", "Reed-Solomon code generated successfully!"
-    print "Code length", C.length()
-    print "Message length", C.dimension()
-    print "Minimun distance:", C.minimum_distance()
-    print "Max number of error", D.decoding_radius()
+    print "\t- Code length:", C.length()
+    print "\t- Message length:", C.dimension()
+    print "\t- Minimun distance:", C.minimum_distance()
+    print "\t- Max number of errors:", D.decoding_radius()
 
 def list_GF(C):
     print "GRS base field:", C.base_field()
@@ -100,7 +101,7 @@ def read_user_input(args, C):
 
 def parse_arguments(args):
     parser = argparse.ArgumentParser(description="Generalized Reed-Solomon, Server Side",
-            epilog="Example: ./server.py -Dqo15 -n13 -k8 -m24 -E 2 6")
+            epilog="Example: ./server.py -Dqo15 -n13 -k8 -E 2 5")
     parser.add_argument("-o", "--order", required=True, type=int, dest="o", help="GRS Galois field order")
     parser.add_argument("-q", "--primary", action="store_true", dest="prime_GF", help="Set GRS Galois field order to next primary")
     parser.add_argument("-n", required=True, type=int, dest="n", help="GRS evaluation points (length of the code, n<=o)")

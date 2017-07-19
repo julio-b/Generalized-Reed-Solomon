@@ -1,4 +1,12 @@
 # Generalized-Reed-Solomon
+
+## Dependencies
+* `sagemath` (https://www.sagemath.org/)
+* `python2`
+  * `argparse`
+  * `pickle`
+  * `socket`
+
 ## Steps
 1. `chmod u+x server.py`
 1. `chmod u+x client.py`
@@ -6,7 +14,7 @@
 1. `Open a new terminal: ./client.py`
 
 ## Help
-### Server
+#### Server
 
 ```
 usage: server.py [-h] -o O [-q] -n N -k K [-D] [--clmns I1 [I2 ...]]
@@ -41,10 +49,10 @@ optional arguments:
   -p ERROR              Error probabillity (float in [0,1), ex: -p0.2)
   -P PORT, --port PORT  Socket port (default: 666)
 
-Example: ./server.py -Dqo15 -n13 -k8 -m24 -E 2 6
+Example: ./server.py -Dqo15 -n13 -k8 -E 2 5
 ```
 
-### Client
+#### Client
 
 ```
 usage: client.py [-h] [-P PORT] [--no-color] [-c] [-m] [-s]
@@ -60,3 +68,11 @@ optional arguments:
   -s, --to-string       Decode all messages to ascii text
 
 ```
+
+## Links
+Useful documentation
+* https://doc.sagemath.org/html/en/thematic_tutorials/coding_theory.html
+* https://doc.sagemath.org/html/en/reference/coding/sage/coding/grs.html
+* https://doc.sagemath.org/html/en/reference/coding/sage/coding/channel_constructions.html
+* https://doc.sagemath.org/html/en/reference/finite_rings/sage/rings/finite_rings/finite_field_constructor.html
+* https://docs.python.org/2/library/argparse.html
