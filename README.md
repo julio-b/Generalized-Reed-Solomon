@@ -6,6 +6,7 @@
 1. `Open a new terminal: ./client.py`
 
 ## Help
+### Server
 
 ```
 usage: server.py [-h] -o O [-q] -n N -k K [-D] [--clmns I1 [I2 ...]]
@@ -42,16 +43,20 @@ optional arguments:
 
 Example: ./server.py -Dqo15 -n13 -k8 -m24 -E 2 6
 ```
+
+### Client
+
 ```
-usage: client.py [-h] [-P PORT] [-c] [-s] [--no-color]
+usage: client.py [-h] [-P PORT] [--no-color] [-c] [-m] [-s]
 
 Generalized Reed-Solomon, Client Side
 
 optional arguments:
   -h, --help            show this help message and exit
   -P PORT, --port PORT  Socket port (default: 666)
-  -c, --to-code         Decode to code instead of message
-  -s, --to-string       Decode also to ascii string
   --no-color            Do not highlight errors in code
+  -c, --to-code         Decode to code
+  -m, --unencode        Display message as vector instead of polynomial
+  -s, --to-string       Decode all messages to ascii text
 
 ```

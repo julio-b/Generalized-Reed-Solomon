@@ -20,27 +20,8 @@ def main(argv):
                 server_args.prime_GF,
                 server_args.dual_code,
                 server_args.column_multipliers)
-        msg_ascii=""
         print "Received", len(data[1]), "messages from server!\n"
-        for i in range(len(data[1])):
-            try:
-                if args.no_color:
-                    code_str = str(data[1][i])
-                else:
-                    code_str = highlight_errors(data[1][i], D)
-                if args.to_string:
-                    msg_ascii += grs.decode_to_ascii(data[1][i], C, D)
-                print "#%d {%s --decode-to-%s--> %s}" % (
-                        i,
-                        code_str,
-                        "code" if args.to_code else "msg",
-                        D.decode_to_code(data[1][i]) if args.to_code else D.decode_to_message(data[1][i]))
-            except (sage.coding.decoder.DecodingError, ValueError) as e:
-                print "#%d {%s DECODE FAILED!}" % (i, data[1][i])
-                pass
-        if args.to_string:
-            print "Trying to decode messages to ascii text:"
-            print msg_ascii
+        print_messages(data[1], args, C, D)
     except socket.error as se:
         print se
         print "Check that your server is running or change port (-P PORT)"
@@ -60,6 +41,26 @@ def recv_all(s):
         if not r: break
     return recv
 
+def print_messages(codes, args, C, D):
+    msg_ascii=""
+    for i in range(len(codes)):
+        try:
+            print "#%d {\n %s %s %s %s %s\n}" % (
+                    i,
+                    str(codes[i]) if args.no_color else highlight_errors(codes[i], D),
+                    "--decode-to-code->\n" if args.to_code else "\b",
+                    D.decode_to_code(codes[i]) if args.to_code else "\b",
+                    "--decode-to-msg->\n",
+                    C.unencode(D.decode_to_code(codes[i])) if args.unencode else D.decode_to_message(codes[i]))
+            if args.to_string:
+                msg_ascii += grs.decode_to_ascii(codes[i], C, D)
+        except (sage.coding.decoder.DecodingError, ValueError) as e:
+            print "#%d [%s DECODE FAILED!]" % (i, codes[i])
+            pass
+    if args.to_string:
+        print "\nTrying to decode messages to ascii text:"
+        print msg_ascii
+
 def highlight_errors(errcode, D):
     code_str = "("
     code = D.decode_to_code(errcode)
@@ -75,9 +76,10 @@ def highlight_errors(errcode, D):
 def parse_arguments(args):
     parser = argparse.ArgumentParser(description="Generalized Reed-Solomon, Client Side")
     parser.add_argument("-P", "--port", default=666, type=int, dest="PORT", help="Socket port (default: 666)")
-    parser.add_argument("-c", "--to-code", action="store_true", help="Decode to code instead of message")
-    parser.add_argument("-s", "--to-string", action="store_true", help="Decode also to ascii string")
     parser.add_argument("--no-color", action="store_true", help="Do not highlight errors in code")
+    parser.add_argument("-c", "--to-code", action="store_true", help="Decode to code")
+    parser.add_argument("-m", "--unencode", action="store_true", help="Display message as vector instead of polynomial")
+    parser.add_argument("-s", "--to-string", action="store_true", help="Decode all messages to ascii text")
     return parser.parse_args(args)
 
 if __name__ == "__main__":
